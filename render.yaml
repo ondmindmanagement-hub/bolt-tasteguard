@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bolt-tasteguard
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    envVars:
+      - key: QLOO_API_KEY
+        sync: false
