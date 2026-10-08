@@ -1,37 +1,43 @@
-# BOLT TasteGuard
+# BOLT TasteGuard — Qloo cultural-fit prototype
 
-Qloo Agentic Hackathon 2026.
+Project by Omar Baró / Unfire for the Qloo Agentic Hackathon 2026. **Pre-incorporation, founder-led prototype.**
 
-BOLT TasteGuard turns a natural-language cultural brief into Qloo taste evidence, presents ranked recommendations, and stops at an explicit human approval boundary before any external action.
+## What works
 
-## Problem
-General-purpose agents often substitute generic popularity for cultural fit. TasteGuard uses Qloo as the evidence layer instead of asking an LLM to guess.
+The Node.js server asks Qloo **Search** to resolve an exact cultural anchor (e.g. Rosalía) into an official Qloo entity ID. It then calls the official **Qloo Insights API** `/v2/insights` with that ID and a permitted entity type, and displays the actual returned entities. The browser requires human confirmation before doing anything else. **Approval is a local UI indication only**, with no bookings, purchases, publications or external tool actions.
 
-## Flow
-1. Human enters audience, cultural anchor, market and objective.
-2. TasteGuard converts the brief into a structured Qloo recommendation request.
-3. Qloo returns taste-graph recommendations.
-4. TasteGuard normalizes and displays the evidence.
-5. A human explicitly approves the brief.
-6. No booking, publishing, outreach or spend happens silently.
+**Verified October 8, 2026:** Qloo Search HTTP 200, Qloo Insights HTTP 200, authenticated end-to-end server-side function returned 8 real place entities anchored to the artist Rosalía, and 8 automated tests passed. This was an integration test on the developer Mac, not a public deployment or proof of market traction.
 
-## Qloo integration
-The server uses the official @qloo/qloo-harness package and calls qloo recommend with a natural-language taste query, entity type, eight results, explanation and JSON output.
+## Limitations (important)
 
-The Qloo credential stays server-side in QLOO_API_KEY. It is never committed or sent to the browser.
+- The city and audience fields currently provide **human-readable brief context**, but **are not passed as geographical or audience filters into Qloo Insights**. Results can be worldwide and should *not* be described as places in the indicated city. The interface explicitly warns of this.
+- The system selects the first Qloo Search result; it does not support disambiguation of similarly named artists.
+- This is deterministic API orchestration with a human checkpoint, **not** an autonomous commercial agent or an LLM-generated recommendation.
+- We do not have third-party evaluation of recommendation quality, a client pilot, regional constraints, or certification.
+- The response names are rendered as text, not interpreted as HTML, and Qloo API secrets remain on the server.
 
-## Run
-Run npm ci, set QLOO_API_KEY in the server environment, then run npm start. Open http://localhost:8080.
+## Run locally
 
-Tests: npm test and npm run dry-run.
+Requires Node.js 20+; this project no longer needs the experimental third-party Qloo harness. Get a valid official Qloo event-issued API key.
 
-Without an event-issued Qloo key, the server returns a clear waiting_for_qloo_key state instead of inventing recommendations.
+```sh
+npm ci
+export QLOO_API_KEY='your-secret-from-the-Qloo-email'
+npm test
+npm start
+# open http://localhost:8080
+```
 
-## Deployment
-render.yaml is included for server-side deployment. Add QLOO_API_KEY only as a private environment variable in the host.
+Do not enter the API key in the web page, add it to git, or put it in public screenshots. For managed hosting, configure `QLOO_API_KEY` as a private environment variable.
 
-## Status
-Application, UI, tests and deployment scaffold are ready. Live Qloo validation will be added as soon as the event-issued API credential arrives.
+Tests use an injected mock transport; live verification is performed separately with an actual Qloo key.
 
-## License
-MIT.
+## Architecture
+
+```text
+Brief -> validation -> Qloo /search -> official entity_id
+      -> Qloo /v2/insights -> returned evidence
+      -> human-facing summary and approval boundary
+```
+
+MIT license. No payment required by this prototype.

@@ -32,6 +32,7 @@ async function handleApi(req,res){
       sendJson(res,200,{source:"Qloo",request,recommendations,approval_required:true,approval_reason:"Taste recommendations are evidence for a human decision, not permission to publish or spend."});
     }catch(error){
       if(error.code==="QLOO_KEY_MISSING")sendJson(res,503,{error:"Qloo API key is not configured yet.",status:"waiting_for_qloo_key"});
+      else if(error.code==="QLOO_API_ERROR")sendJson(res,502,{error:error.message});
       else sendJson(res,400,{error:error.message});
     }
     return true;
@@ -41,8 +42,8 @@ async function handleApi(req,res){
 async function serveStatic(req,res){
   const url=new URL(req.url,"http://"+req.headers.host);
   const rel=url.pathname==="/"?"index.html":url.pathname.replace(/^\/+/,"");
-  const file=path.join(PUBLIC,rel);
-  if(!file.startsWith(PUBLIC)){res.writeHead(403);res.end("Forbidden");return;}
+  const file=path.resolve(PUBLIC,rel);
+  if(!file.startsWith(PUBLIC+path.sep) && file!==PUBLIC){res.writeHead(403);res.end("Forbidden");return;}
   try{
     const data=await fs.readFile(file);
     res.writeHead(200,{"content-type":contentTypes[path.extname(file)]||"application/octet-stream","cache-control":rel==="index.html"?"no-store":"public, max-age=3600"});

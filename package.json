@@ -1,16 +1,13 @@
 {
   "name": "bolt-tasteguard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Qloo-powered cultural fit agent for the Qloo Agentic Hackathon 2026",
+  "description": "Qloo search and insights integration with human approval boundary",
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test",
     "dry-run": "node scripts/dry-run.mjs"
-  },
-  "dependencies": {
-    "@qloo/qloo-harness": "0.1.26"
   },
   "engines": { "node": ">=20" },
   "license": "MIT"
